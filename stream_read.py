@@ -10,9 +10,9 @@ from selenium import webdriver
 from selenium.common.exceptions import *
 from selenium.webdriver.common.keys import Keys
 ##
+# @desc: This class contains everything neccesary to record data from the stock twits website to a file to be processesed
+##
 class StockTwitsStreamRecorder:
-    # @desc: This class contains everything neccesary to record data from the stock twits website to a file to be processesed
-    ##
     # @desc: Initializes the Class Object, this object will have enough info to run multiple stream recorders
     def __init__(self):
         self.stockTwitsURLForm = "https://www.stocktwits.com/symbol/{}"
@@ -20,6 +20,20 @@ class StockTwitsStreamRecorder:
         self.stockTwitsMessageId = 'MessageList__item'
         self.stockTwitsSentimentIncicatorPartialId = 'MessageStreamView__sentiment'
         print("Stocktwits Stream Recorder Activated")
+    ##
+    # @desc: This Class is a containter for a twit
+    # @param[user] String: of the Twits 'OP'
+    # @param[timestamp] Datetime: A datetime object of the twits orign time
+    # @param[sentiment] String: A String of value [Bullish, Bearish, None]
+    # @param[text] String: The Text Content of the Twit
+    # @param[price] Float: The price of the security when twit is descovered
+    class Twit:
+        def __init__(user,timestamp,sentiment,text,price):
+            self.user = user
+            self.timestamp = timestamp
+            self.sentiment = sentiment
+            self.text = text
+            self.price = price
     ##
     # @desc: When the Class is destroyed give the user a freindly reminder that it has closed successfuly
     def __del__(self):
@@ -47,11 +61,11 @@ class StockTwitsStreamRecorder:
                 _onScreenTwits = driver.find_elements_by_xpath('//*[contains(@class, "' + self.stockTwitsMessageId +'")]') #This is the equivilant of pointing to each message that comes though the stream
                 for twit in _onScreenTwits:
                     try:
-                        _x = twit.find_element_by_xpath('.//*[contains(@class, "' + self.stockTwitsSentimentIncicatorPartialId +'")]').text
-                        if str(_x) == '':
-                            _x = 'None'
-                    except NoSuchElementException:
-                        _x = 'None'
+                        _sentiment = twit.find_element_by_xpath('.//*[contains(@class, "' + self.stockTwitsSentimentIncicatorPartialId +'")]').text
+                        if str(_sentiment) == '':
+                            _sentiment = 'None'
+                    except NoSuchElementException: #Assume if the Element doesn't exist when search the user is not a bear or bull
+                        _sentiment = 'None'
                     finally:
                         print(_x)
                 print("----UPDATE----")
